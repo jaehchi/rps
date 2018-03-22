@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.3.2",
+    "clear": "^0.1.0",
     "readline-sync": "^1.4.9",
     "table-master": "^1.0.3"
   }

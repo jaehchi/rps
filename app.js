@@ -1,5 +1,6 @@
 const { question, keyInSelect, setDefaultOptions } = require('readline-sync');
 const { setDefaults } = require('table-master');
+const clear = require('clear')
 const chalk = require('chalk');
 
 setDefaults( { indent  : 0, rowSpace: 3 } );
@@ -20,57 +21,65 @@ class RPS {
   }
 
   printScoreBoard () {
+    console.log(chalk.yellow(`------------ SCOREBOARD -------------`, ));
     console.table(this.scoreBoard, 'lcrc');
+    console.log(chalk.yellow('-------------------------------------'));
+    console.log('\n');
   }
 
   printWinner ( player ) {
-    console.log(`Congratulations ${player}, You've Won!`);
+    console.log(chalk.yellow(chalk`Congratulations ${player}, You've Won! c:`));
+    console.log('\n');
   }
 
   printLoser ( player ) {
     // For single player...
-    console.log(`Sorry, ${player}, Better luck next time!`)
+    console.log(chalk`{yellow Sorry, ${player}, Better luck next time!}: :c`);
   }
 
   promptVersusMode () {
     const mode = ['Single', 'Versus'];
-    console.log('Play against a Bot (Single) or play against a Friend (Versus)!');
-    this.mode = mode[ keyInSelect(mode, 'Choice: ', { cancel : false }) ];
+    console.log(chalk`{green Play against a {yellow.bold BOT (Single)} or play against a {yellow.bold FRIEND (Versus)!}}`);
+    this.mode = mode[ keyInSelect(mode, chalk`{green Choice }`, { cancel : false }) ];
+    clear();
   }
 
   promptPlayerNames () {
     const askingForName = `what's your name? `;
     this.mode === 'Single' ? (
-      this.p1 = question(askingForName), 
+      this.p1 = question(chalk`{green Player One, ${askingForName}}`),
       this.p2 = 'BOT Alicia'
     ) : ( 
-      this.p1 = question(`Player One, ${askingForName}`),
-      this.p2 = question(`Player Two, ${askingForName}`)
+      this.p1 = question(chalk`{green Player One, ${askingForName}}`),
+      this.p2 = question(chalk`{green Player Two, ${askingForName}}`)
     );
+    clear();
   }
 
   promptBestOfN () {
     const bestOfN = [ 'Best out of 3', 'Best out of 5', 'Best out of 7' ];
-    console.log('Best out of ...?');
-    this.score['rounds'] = Number( bestOfN[ keyInSelect( bestOfN, 'Choice: ',{ cancel : false }) ].charAt(12) );
+    console.log(chalk`{green 'Best out of ...?}`);
+    this.score['rounds'] = Number( bestOfN[ keyInSelect( bestOfN, chalk`{green Choice: }`, { cancel : false }) ].charAt(12) );
     this.score['currentRound'] = 1;
     this.score[this.p1] = 0;
     this.score[this.p2] = 0;
+    clear();
   }
 
   promptPlayerMove ( player ) {
     const moves = ['Rock', 'Paper', 'Scissors'];
     const options = { 
       limit : [1, 2, 3],
-      limitMessage: 'Sorry, invalid move!',
+      limitMessage: chalk`{red \nSorry, invalid move!\n'}`,
       hideEchoBack: true,
-      mask: chalk.magenta('\u2665')
+      mask: chalk`{magenta \u2665}`
     };
 
     const move = question(
-      `Choose a move, ${player}!\n\n[1] Rock\n[2] Paper\n[3] Scissors\n\nMOVE: `, options
+      chalk`{green Choose a move, ${player}!\n\n{white [1] Rock\n[2] Paper\n[3] Scissors}\n\nMOVE: }`, options
     );
 
+    clear();
     return moves[move - 1];
   }
 
@@ -106,34 +115,35 @@ class RPS {
     const p1Move = this.promptPlayerMove(this.p1);
     const p2Move = this.promptPlayerMove(this.p2);
 
-
-    
+    // chalk`{bold.rgb(10,100,200) Hello!}`
+    // rgb(255, 153, 153)
+    // rgb(102, 255, 255)
     if ( this.isRoundTie( p1Move, p2Move ) ) {
-      this.recordMove( p1Move, p2Move, 'TIE' );
+      this.recordMove( chalk`{bold.rgb(102, 255, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 153) ${p2Move}}`, chalk`{green TIE}` );
       this.score.currentRound++;
       this.printScoreBoard();
       this.play();
-    } else if ( this.isPlayerOneWinner( p1Move, p2Move ) === true ) {
-      this.recordMove( p1Move, p2Move, `${this.p1} Wins!` );
+    } else if ( this.isPlayerOneWinner( p1Move, p2Move ) ) {
+      this.recordMove( chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(255, 153, 153) ${this.p1} Wins!}` );
       this.score.currentRound++;
       this.score[this.p1]++;
 
       if ( this.isWinner(this.p1) ) {
-        this.printWinner(this.p1);
         this.printScoreBoard();
+        this.printWinner(this.p1);
       } else {
         this.printScoreBoard();
         this.play();
       }
 
     } else {
-      this.recordMove( p1Move, p2Move, `${this.p2} Wins!` );
+      this.recordMove( chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(102, 255, 255) ${this.p2} Wins!}` );
       this.score.currentRound++;
       this.score[this.p2]++;
 
       if ( this.isWinner(this.p2) ) {
-        this.printWinner(this.p2);
         this.printScoreBoard();
+        this.printWinner(this.p2);
       } else {
         this.printScoreBoard();
         this.play();
@@ -143,6 +153,5 @@ class RPS {
 }
 
 const game = new RPS();
-
 game.play();
 
