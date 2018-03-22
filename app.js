@@ -67,7 +67,8 @@ class RPS {
   }
 
   promptPlayerMove ( player ) {
-    const moves = ['Rock', 'Paper', 'Scissors'];
+    const moves = Object.keys(this.logic);
+
     const options = { 
       limit : [1, 2, 3],
       limitMessage: chalk`{red \nSorry, invalid move!\n'}`,
@@ -81,6 +82,17 @@ class RPS {
 
     clear();
     return moves[move - 1];
+  }
+
+  // Bot Alicia Logic 
+
+  botAliciaMove () {
+    const moves = Object.keys(this.logic);
+
+    const index = Math.floor( Math.random() * 3 );
+    console.log(moves[index])
+    
+    return moves[index];
   }
 
   // Game Logic 
@@ -113,11 +125,9 @@ class RPS {
       this.promptBestOfN();
     }
     const p1Move = this.promptPlayerMove(this.p1);
-    const p2Move = this.promptPlayerMove(this.p2);
-
-    // chalk`{bold.rgb(10,100,200) Hello!}`
-    // rgb(255, 153, 153)
-    // rgb(102, 255, 255)
+    console.log(this)
+    const p2Move = this.mode === 'Multiplayer' ? this.promptPlayerMove(this.p2) : this.botAliciaMove();
+    console.log(p2Move)
     if ( this.isRoundTie( p1Move, p2Move ) ) {
       this.recordMove( chalk`{bold.rgb(102, 255, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 153) ${p2Move}}`, chalk`{green TIE}` );
       this.score.currentRound++;
@@ -153,5 +163,5 @@ class RPS {
 }
 
 const game = new RPS();
+// game.botAliciaMove();
 game.play();
-
