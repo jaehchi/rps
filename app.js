@@ -2,15 +2,15 @@ const { question, keyInSelect, setDefaultOptions } = require('readline-sync');
 const { setDefaults } = require('table-master');
 const chalk = require('chalk');
 
-setDefaults( { indent  : 3, rowSpace: 3 } );
+setDefaults( { indent  : 0, rowSpace: 3 } );
 setDefaultOptions( { guide: true } );
 
 class RPS {
   constructor () {
     this.logic = {
-      'rock' : 'scissors',
-      'paper': 'rock',
-      'scissors': 'paper'
+      'Rock' : 'Scissors',
+      'Paper': 'Rock',
+      'Scissors': 'Paper'
     }
     this.scoreBoard = [];
     this.score = {};
@@ -59,7 +59,7 @@ class RPS {
   }
 
   promptPlayerMove ( player ) {
-    const moves = ['r', 'p', 's'];
+    const moves = ['Rock', 'Paper', 'Scissors'];
     const options = { 
       limit : [1, 2, 3],
       limitMessage: 'Sorry, invalid move!',
@@ -67,10 +67,15 @@ class RPS {
       mask: chalk.magenta('\u2665')
     };
 
-    const move = question(`Choose a move, ${player}!\n\n[1] Rock\n[2] Scissors\n[3] Paper\n\nMOVE: `, options)
+    const move = question(
+      `Choose a move, ${player}!\n\n[1] Rock\n[2] Paper\n[3] Scissors\n\nMOVE: `, options
+    );
+
+    return moves[move - 1];
   }
 
   // Game Logic 
+
   recordMove ( p1Move, p2Move, winner ) {
     this.scoreBoard.push( {
       Round : this.score.currentRound,
@@ -89,18 +94,55 @@ class RPS {
   }
 
   isWinner ( player ) {
-    return this.score[player] === ( ( this.score + 1 ) / 2 )  ? true : false;
+    return this.score[player] === ( ( this.score.rounds + 1 ) / 2 )  ? true : false;
   }
 
   play () {
+    if ( !this.p1 ) {
+      this.promptVersusMode();
+      this.promptPlayerNames();
+      this.promptBestOfN();
+    }
+    const p1Move = this.promptPlayerMove(this.p1);
+    const p2Move = this.promptPlayerMove(this.p2);
 
+
+    
+    if ( this.isRoundTie( p1Move, p2Move ) ) {
+      this.recordMove( p1Move, p2Move, 'TIE' );
+      this.score.currentRound++;
+      this.printScoreBoard();
+      this.play();
+    } else if ( this.isPlayerOneWinner( p1Move, p2Move ) === true ) {
+      this.recordMove( p1Move, p2Move, `${this.p1} Wins!` );
+      this.score.currentRound++;
+      this.score[this.p1]++;
+
+      if ( this.isWinner(this.p1) ) {
+        this.printWinner(this.p1);
+        this.printScoreBoard();
+      } else {
+        this.printScoreBoard();
+        this.play();
+      }
+
+    } else {
+      this.recordMove( p1Move, p2Move, `${this.p2} Wins!` );
+      this.score.currentRound++;
+      this.score[this.p2]++;
+
+      if ( this.isWinner(this.p2) ) {
+        this.printWinner(this.p2);
+        this.printScoreBoard();
+      } else {
+        this.printScoreBoard();
+        this.play();
+      }
+    }
   }
 }
 
 const game = new RPS();
-game.promptVersusMode();
-game.promptPlayerNames();
-game.promptBestOfN();
-game.printScoreBoard();
-game.promptPlayerMove(game.p1);
+
+game.play();
 
