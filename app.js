@@ -15,7 +15,7 @@ class RPS {
     }
     this.scoreBoard = [];
     this.score = {};
-    this.mode;
+    this.vs;
     this.p1;
     this.p2;
   }
@@ -38,15 +38,15 @@ class RPS {
   }
 
   promptVersusMode() {
-    const mode = [ 'Single', 'Versus' ];
+    const vs = [ 'Single', 'Versus' ];
     console.log(chalk`{green Play against a {yellow.bold BOT (Single)} or play against a {yellow.bold FRIEND (Versus)!}}`);
-    this.mode = mode[ keyInSelect(mode, chalk`{green Choice }`, { cancel: false }) ];
+    this.vs = vs[ keyInSelect(vs, chalk`{green Choice }`, { cancel: false }) ];
     clear();
   }
 
   promptPlayerNames() {
     const askingForName = `what's your name? `;
-    this.mode === 'Single' ? (
+    this.vs === 'Single' ? (
       this.p1 = question(chalk`{green Player One, ${askingForName}}`),
       this.p2 = 'BOT Alicia'
     ) : (
@@ -57,9 +57,11 @@ class RPS {
   }
 
   promptBestOfN() {
-    const bestOfN = [ 'Best out of 3', 'Best out of 5', 'Best out of 7' ];
+    const bestOfN = [ 3, 5, 7, `FOREVER... YOU HAVE BEEN WARNED` ];
     console.log(chalk`{green 'Best out of ...?}`);
-    this.score[ 'rounds' ] = Number(bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ].charAt(12));
+    // this.score[ 'rounds' ] = Number(bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ].charAt(12));
+    const n = bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ];
+    this.score[ 'rounds' ] = typeof n === 'string' ? 100000 : n;
     this.score[ 'currentRound' ] = 1;
     this.score[ this.p1 ] = 0;
     this.score[ this.p2 ] = 0;
@@ -126,7 +128,7 @@ class RPS {
     }
 
     const p1Move = this.promptPlayerMove(this.p1);
-    const p2Move = this.mode === 'Versus' ? this.promptPlayerMove(this.p2) : this.botAliciaMove();
+    const p2Move = this.vs === 'Versus' ? this.promptPlayerMove(this.p2) : this.botAliciaMove();
 
     if (this.isRoundTie(p1Move, p2Move)) { // check if the round is a draw
 
@@ -153,9 +155,9 @@ class RPS {
       this.recordMove(chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(102, 255, 255) ${this.p2} Wins!}`);
       this.score.currentRound++;
       this.score[ this.p2 ]++;
-    
+
       if (this.isWinner(this.p2)) {
-        if (this.mode === 'Single') {
+        if (this.vs === 'Single') {
           this.printScoreBoard();
           this.printLoser(this.p1);
         } else {
@@ -166,7 +168,7 @@ class RPS {
         this.printScoreBoard();
         this.play();
       }
-    
+
     }
   }
 }
