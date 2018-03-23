@@ -1,15 +1,15 @@
 const { question, keyInSelect, setDefaultOptions } = require('readline-sync');
 const { setDefaults } = require('table-master');
-const clear = require('clear')
+const clear = require('clear');
 const chalk = require('chalk');
 
-setDefaults( { indent  : 0, rowSpace: 3 } );
-setDefaultOptions( { guide: true } );
+setDefaults({ indent: 0, rowSpace: 3 });
+setDefaultOptions({ guide: true });
 
 class RPS {
-  constructor () {
+  constructor() {
     this.logic = {
-      'Rock' : 'Scissors',
+      'Rock': 'Scissors',
       'Paper': 'Rock',
       'Scissors': 'Paper'
     }
@@ -20,57 +20,57 @@ class RPS {
     this.p2;
   }
 
-  printScoreBoard () {
+  printScoreBoard() {
     console.log(chalk.yellow(`------------ SCOREBOARD -------------`, ));
     console.table(this.scoreBoard, 'lcrc');
     console.log(chalk.yellow('-------------------------------------'));
     console.log('\n');
   }
 
-  printWinner ( player ) {
+  printWinner(player) {
     console.log(chalk.yellow(chalk`Congratulations ${player}, You've Won! c:`));
     console.log('\n');
   }
 
-  printLoser ( player ) {
-    // For single player...
-    console.log(chalk`{yellow Sorry, ${player}, Better luck next time!}: :c`);
+  printLoser(player) {
+    console.log(chalk`{yellow Sorry, ${player}! Better luck next time!}: :c`);
+    console.log('\n');
   }
 
-  promptVersusMode () {
-    const mode = ['Single', 'Versus'];
+  promptVersusMode() {
+    const mode = [ 'Single', 'Versus' ];
     console.log(chalk`{green Play against a {yellow.bold BOT (Single)} or play against a {yellow.bold FRIEND (Versus)!}}`);
-    this.mode = mode[ keyInSelect(mode, chalk`{green Choice }`, { cancel : false }) ];
+    this.mode = mode[ keyInSelect(mode, chalk`{green Choice }`, { cancel: false }) ];
     clear();
   }
 
-  promptPlayerNames () {
+  promptPlayerNames() {
     const askingForName = `what's your name? `;
     this.mode === 'Single' ? (
       this.p1 = question(chalk`{green Player One, ${askingForName}}`),
       this.p2 = 'BOT Alicia'
-    ) : ( 
-      this.p1 = question(chalk`{green Player One, ${askingForName}}`),
-      this.p2 = question(chalk`{green Player Two, ${askingForName}}`)
-    );
+    ) : (
+        this.p1 = question(chalk`{green Player One, ${askingForName}}`),
+        this.p2 = question(chalk`{green Player Two, ${askingForName}}`)
+      );
     clear();
   }
 
-  promptBestOfN () {
+  promptBestOfN() {
     const bestOfN = [ 'Best out of 3', 'Best out of 5', 'Best out of 7' ];
     console.log(chalk`{green 'Best out of ...?}`);
-    this.score['rounds'] = Number( bestOfN[ keyInSelect( bestOfN, chalk`{green Choice: }`, { cancel : false }) ].charAt(12) );
-    this.score['currentRound'] = 1;
-    this.score[this.p1] = 0;
-    this.score[this.p2] = 0;
+    this.score[ 'rounds' ] = Number(bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ].charAt(12));
+    this.score[ 'currentRound' ] = 1;
+    this.score[ this.p1 ] = 0;
+    this.score[ this.p2 ] = 0;
     clear();
   }
 
-  promptPlayerMove ( player ) {
+  promptPlayerMove(player) {
     const moves = Object.keys(this.logic);
 
-    const options = { 
-      limit : [1, 2, 3],
+    const options = {
+      limit: [ 1, 2, 3 ],
       limitMessage: chalk`{red \nSorry, invalid move!\n'}`,
       hideEchoBack: true,
       mask: chalk`{magenta \u2665}`
@@ -81,64 +81,67 @@ class RPS {
     );
 
     clear();
-    return moves[move - 1];
+    return moves[ move - 1 ];
   }
 
   // Bot Alicia Logic 
 
-  botAliciaMove () {
+  botAliciaMove() {
     const moves = Object.keys(this.logic);
 
-    const index = Math.floor( Math.random() * 3 );
-    console.log(moves[index])
-    
-    return moves[index];
+    const index = Math.floor(Math.random() * 3);
+    console.log(moves[ index ])
+
+    return moves[ index ];
   }
 
   // Game Logic 
 
-  recordMove ( p1Move, p2Move, winner ) {
-    this.scoreBoard.push( {
-      Round : this.score.currentRound,
-      [this.p1]: p1Move,
-      [this.p2]: p2Move,
+  recordMove(p1Move, p2Move, winner) {
+    this.scoreBoard.push({
+      Round: this.score.currentRound,
+      [ this.p1 ]: p1Move,
+      [ this.p2 ]: p2Move,
       Outcome: winner
-    } );
+    });
   }
 
-  isRoundTie ( p1Move, p2Move ) {
+  isRoundTie(p1Move, p2Move) {
     return p1Move === p2Move ? true : false;
   }
 
-  isPlayerOneWinner ( p1Move, p2Move ) {
-    return this.logic[p1Move] === p2Move ? true : false
+  isPlayerOneWinner(p1Move, p2Move) {
+    return this.logic[ p1Move ] === p2Move ? true : false
   }
 
-  isWinner ( player ) {
-    return this.score[player] === ( ( this.score.rounds + 1 ) / 2 )  ? true : false;
+  isWinner(player) {
+    return this.score[ player ] === ((this.score.rounds + 1) / 2) ? true : false;
   }
 
-  play () {
-    if ( !this.p1 ) {
+  play() {
+    if (!this.p2) { // if p2 doesn't exist, the game is just started
       this.promptVersusMode();
       this.promptPlayerNames();
       this.promptBestOfN();
     }
+
     const p1Move = this.promptPlayerMove(this.p1);
-    console.log(this)
-    const p2Move = this.mode === 'Multiplayer' ? this.promptPlayerMove(this.p2) : this.botAliciaMove();
-    console.log(p2Move)
-    if ( this.isRoundTie( p1Move, p2Move ) ) {
-      this.recordMove( chalk`{bold.rgb(102, 255, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 153) ${p2Move}}`, chalk`{green TIE}` );
+    const p2Move = this.mode === 'Versus' ? this.promptPlayerMove(this.p2) : this.botAliciaMove();
+
+    if (this.isRoundTie(p1Move, p2Move)) { // check if the round is a draw
+
+      this.recordMove(chalk`{bold.rgb(102, 255, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 153) ${p2Move}}`, chalk`{bold.rgb(102, 255, 153) TIE}`);
       this.score.currentRound++;
       this.printScoreBoard();
       this.play();
-    } else if ( this.isPlayerOneWinner( p1Move, p2Move ) ) {
-      this.recordMove( chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(255, 153, 153) ${this.p1} Wins!}` );
-      this.score.currentRound++;
-      this.score[this.p1]++;
 
-      if ( this.isWinner(this.p1) ) {
+    } else if (this.isPlayerOneWinner(p1Move, p2Move)) { // checks if p1 is the winner
+
+      this.recordMove(chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(255, 153, 153) ${this.p1} Wins!}`);
+      this.score.currentRound++;
+      this.score[ this.p1 ]++;
+
+      if (this.isWinner(this.p1)) {
         this.printScoreBoard();
         this.printWinner(this.p1);
       } else {
@@ -146,22 +149,27 @@ class RPS {
         this.play();
       }
 
-    } else {
-      this.recordMove( chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(102, 255, 255) ${this.p2} Wins!}` );
+    } else {  // If there is no tie and p1 did not win, then p2 wins.
+      this.recordMove(chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(102, 255, 255) ${this.p2} Wins!}`);
       this.score.currentRound++;
-      this.score[this.p2]++;
-
-      if ( this.isWinner(this.p2) ) {
-        this.printScoreBoard();
-        this.printWinner(this.p2);
+      this.score[ this.p2 ]++;
+    
+      if (this.isWinner(this.p2)) {
+        if (this.mode === 'Single') {
+          this.printScoreBoard();
+          this.printLoser(this.p1);
+        } else {
+          this.printScoreBoard();
+          this.printWinner(this.p2);
+        }
       } else {
         this.printScoreBoard();
         this.play();
       }
+    
     }
   }
 }
 
 const game = new RPS();
-// game.botAliciaMove();
 game.play();
