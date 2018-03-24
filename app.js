@@ -21,19 +21,19 @@ class RPS {
   }
 
   printScoreBoard() {
-    console.log(chalk.yellow(`------------ SCOREBOARD -------------`, ));
+    console.log(chalk`{yellow ------------ SCOREBOARD -------------}`);
     console.table(this.scoreBoard, 'lcrc');
-    console.log(chalk.yellow('-------------------------------------'));
+    console.log(chalk`{yellow -------------------------------------}`);
     console.log('\n');
   }
 
   printWinner(player) {
-    console.log(chalk.yellow(chalk`Congratulations ${player}, You've Won! c:`));
+    console.log(chalk`{yellow Congratulations ${player}, You've Won! c:}`);
     console.log('\n');
   }
 
   printLoser(player) {
-    console.log(chalk`{yellow Sorry, ${player}! Better luck next time!}: :c`);
+    console.log(chalk`{yellow Sorry, ${player}! Better luck next time! :c}`);
     console.log('\n');
   }
 
