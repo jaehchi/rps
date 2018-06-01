@@ -1,4 +1,4 @@
-const { question, keyInSelect, setDefaultOptions } = require('readline-sync');
+const { question, keyInSelect, keyInYNStrict, setDefaultOptions } = require('readline-sync');
 const { setDefaults } = require('table-master');
 const clear = require('clear');
 const chalk = require('chalk');
@@ -57,6 +57,10 @@ class RPS {
   }
 
   promptBestOfN() {
+    if (Object.keys(this.score).length > 0) {
+      this.score = {};
+      clear();
+    }
     const bestOfN = [ 3, 5, 7, `FOREVER... YOU HAVE BEEN WARNED` ];
     console.log(chalk`{green 'Best out of ...?}`);
     // this.score[ 'rounds' ] = Number(bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ].charAt(12));
@@ -73,7 +77,7 @@ class RPS {
 
     const options = {
       limit: [ 1, 2, 3 ],
-      limitMessage: chalk`{red \nSorry, invalid move!\n'}`,
+      limitMessage: chalk`{red \nSorry, invalid move!\n}`,
       hideEchoBack: true,
       mask: chalk`{magenta \u2665}`
     };
@@ -86,13 +90,17 @@ class RPS {
     return moves[ move - 1 ];
   }
 
+  promptPlayAgain() {
+    const answer = keyInYNStrict(`Play again?`);
+    answer ? (this.scoreBoard = [], this.promptBestOfN(), this.play()): (clear(), console.log(chalk`{green \nAwww.. bye T_T!\n}`))
+  }
+
   // Bot Alicia Logic 
 
   botAliciaMove() {
     const moves = Object.keys(this.logic);
 
     const index = Math.floor(Math.random() * 3);
-    console.log(moves[ index ])
 
     return moves[ index ];
   }
@@ -121,6 +129,7 @@ class RPS {
   }
 
   play() {
+
     if (!this.p2) { // if p2 doesn't exist, the game is just started
       this.promptVersusMode();
       this.promptPlayerNames();
@@ -146,6 +155,7 @@ class RPS {
       if (this.isWinner(this.p1)) {
         this.printScoreBoard();
         this.printWinner(this.p1);
+        this.promptPlayAgain();
       } else {
         this.printScoreBoard();
         this.play();
@@ -160,9 +170,11 @@ class RPS {
         if (this.vs === 'Single') {
           this.printScoreBoard();
           this.printLoser(this.p1);
+          this.promptPlayAgain();
         } else {
           this.printScoreBoard();
           this.printWinner(this.p2);
+          this.promptPlayAgain();
         }
       } else {
         this.printScoreBoard();
