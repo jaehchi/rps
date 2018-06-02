@@ -108,11 +108,21 @@ class RPS {
   // Game Logic 
 
   recordMove(p1Move, p2Move, winner) {
+    let color = '';
+
+    if ( winner === 'TIE' ) {
+      color = 'bold.rgb(102, 255, 153)';
+    } else if ( winner === `${this.p1} Wins!` ) {
+      color = 'bold.rgb(255, 153, 153)';
+    } else {
+      color = 'bold.rgb(102, 255, 255)'
+    }
+
     this.scoreBoard.push({
       Round: this.score.currentRound,
-      [ this.p1 ]: p1Move,
-      [ this.p2 ]: p2Move,
-      Outcome: winner
+      [ this.p1 ]: winner === 'TIE' ? chalk`{${color} ${p1Move}}` : chalk`{bold.rgb(255, 153, 153) ${p1Move}}`,
+      [ this.p2 ]: winner === 'TIE' ? chalk`{${color} ${p2Move}}` : chalk`{bold.rgb(102, 255, 255) ${p2Move}}`,
+      Outcome: chalk`{${color} ${winner}}`
     });
   }
 
@@ -141,14 +151,14 @@ class RPS {
 
     if (this.isRoundTie(p1Move, p2Move)) { // check if the round is a draw
 
-      this.recordMove(chalk`{bold.rgb(102, 255, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 153) ${p2Move}}`, chalk`{bold.rgb(102, 255, 153) TIE}`);
+      this.recordMove(p1Move, p2Move, 'TIE');
       this.score.currentRound++;
       this.printScoreBoard();
       this.play();
 
     } else if (this.isPlayerOneWinner(p1Move, p2Move)) { // checks if p1 is the winner
 
-      this.recordMove(chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(255, 153, 153) ${this.p1} Wins!}`);
+      this.recordMove(p1Move, p2Move, `${this.p1} Wins!`);
       this.score.currentRound++;
       this.score[ this.p1 ]++;
 
@@ -162,7 +172,8 @@ class RPS {
       }
 
     } else {  // If there is no tie and p1 did not win, then p2 wins.
-      this.recordMove(chalk`{bold.rgb(255, 153, 153) ${p1Move}}`, chalk`{bold.rgb(102, 255, 255) ${p2Move}}`, chalk`{bold.rgb(102, 255, 255) ${this.p2} Wins!}`);
+      
+      this.recordMove(p1Move, p2Move, `${this.p2} Wins!`);
       this.score.currentRound++;
       this.score[ this.p2 ]++;
 
