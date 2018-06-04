@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "test": "jest",
+    "start": "node bin/entry.js"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +15,16 @@
     "clear": "^0.1.0",
     "readline-sync": "^1.4.9",
     "table-master": "^1.0.3"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "jest": "^23.1.0"
   }
 }

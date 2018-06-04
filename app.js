@@ -1,7 +1,7 @@
-const { question, keyInSelect, keyInYNStrict, setDefaultOptions } = require('readline-sync');
-const { setDefaults } = require('table-master');
-const clear = require('clear');
-const chalk = require('chalk');
+import { question, keyInSelect, keyInYNStrict, setDefaultOptions } from 'readline-sync';
+import setDefaults from 'table-master';
+import clear from 'clear';
+import chalk from 'chalk';
 
 setDefaults({ indent: 0, rowSpace: 3 });
 setDefaultOptions({ guide: true });
@@ -63,7 +63,6 @@ class RPS {
     }
     const bestOfN = [ 3, 5, 7, `FOREVER... YOU HAVE BEEN WARNED` ];
     console.log(chalk`{green 'Best out of ...?}`);
-    // this.score[ 'rounds' ] = Number(bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ].charAt(12));
     const n = bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ];
     this.score[ 'rounds' ] = typeof n === 'string' ? 100000 : n;
     this.score[ 'currentRound' ] = 1;
@@ -196,5 +195,4 @@ class RPS {
   }
 }
 
-const game = new RPS();
-game.play();
+export default RPS;
