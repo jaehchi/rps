@@ -1,5 +1,5 @@
 import { question, keyInSelect, keyInYNStrict, setDefaultOptions } from 'readline-sync';
-import setDefaults from 'table-master';
+import { setDefaults } from 'table-master';
 import clear from 'clear';
 import chalk from 'chalk';
 
@@ -15,9 +15,9 @@ class RPS {
     }
     this.scoreBoard = [];
     this.score = {};
-    this.vs;
-    this.p1;
-    this.p2;
+    this.vs = null;
+    this.p1 = null;
+    this.p2 = null;
   }
 
   printScoreBoard() {
@@ -61,10 +61,12 @@ class RPS {
       this.score = {};
       clear();
     }
-    const bestOfN = [ 3, 5, 7, `FOREVER... YOU HAVE BEEN WARNED` ];
+
+    const bestOfN = [ 3, 5, 7 ];
     console.log(chalk`{green 'Best out of ...?}`);
     const n = bestOfN[ keyInSelect(bestOfN, chalk`{green Choice: }`, { cancel: false }) ];
-    this.score[ 'rounds' ] = typeof n === 'string' ? 100000 : n;
+
+    this.score[ 'rounds' ] = n;
     this.score[ 'currentRound' ] = 1;
     this.score[ this.p1 ] = 0;
     this.score[ this.p2 ] = 0;
@@ -91,7 +93,7 @@ class RPS {
 
   promptPlayAgain() {
     const answer = keyInYNStrict(`Play again?`);
-    answer ? (this.scoreBoard = [], this.promptBestOfN(), this.play()): (clear(), console.log(chalk`{green \nAwww.. bye T_T!\n}`))
+    answer ? (this.scoreBoard = [], this.promptBestOfN(), this.play()) : (clear(), console.log(chalk`{green \nAwww.. bye T_T!\n}`))
   }
 
   // Bot Alicia Logic 
@@ -109,9 +111,9 @@ class RPS {
   recordMove(p1Move, p2Move, winner) {
     let color = '';
 
-    if ( winner === 'TIE' ) {
+    if (winner === 'TIE') {
       color = 'bold.rgb(102, 255, 153)';
-    } else if ( winner === `${this.p1} Wins!` ) {
+    } else if (winner === `${this.p1} Wins!`) {
       color = 'bold.rgb(255, 153, 153)';
     } else {
       color = 'bold.rgb(102, 255, 255)'
@@ -123,6 +125,8 @@ class RPS {
       [ this.p2 ]: winner === 'TIE' ? chalk`{${color} ${p2Move}}` : chalk`{bold.rgb(102, 255, 255) ${p2Move}}`,
       Outcome: chalk`{${color} ${winner}}`
     });
+
+    this.score.currentRound++;
   }
 
   isRoundTie(p1Move, p2Move) {
@@ -138,7 +142,6 @@ class RPS {
   }
 
   play() {
-
     if (!this.p2) { // if p2 doesn't exist, the game is just started
       this.promptVersusMode();
       this.promptPlayerNames();
@@ -151,14 +154,12 @@ class RPS {
     if (this.isRoundTie(p1Move, p2Move)) { // check if the round is a draw
 
       this.recordMove(p1Move, p2Move, 'TIE');
-      this.score.currentRound++;
       this.printScoreBoard();
       this.play();
 
     } else if (this.isPlayerOneWinner(p1Move, p2Move)) { // checks if p1 is the winner
 
       this.recordMove(p1Move, p2Move, `${this.p1} Wins!`);
-      this.score.currentRound++;
       this.score[ this.p1 ]++;
 
       if (this.isWinner(this.p1)) {
@@ -168,12 +169,12 @@ class RPS {
       } else {
         this.printScoreBoard();
         this.play();
+
       }
 
     } else {  // If there is no tie and p1 did not win, then p2 wins.
-      
+
       this.recordMove(p1Move, p2Move, `${this.p2} Wins!`);
-      this.score.currentRound++;
       this.score[ this.p2 ]++;
 
       if (this.isWinner(this.p2)) {
@@ -190,7 +191,6 @@ class RPS {
         this.printScoreBoard();
         this.play();
       }
-
     }
   }
 }
